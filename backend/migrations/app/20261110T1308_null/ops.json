@@ -1,0 +1,52 @@
+[
+  {
+    "id": "dropColumn.Transaction.use",
+    "label": "Drop column \"use\" from \"Transaction\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "use",
+        "table": "Transaction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"use\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Transaction",
+          "use"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"use\" on \"Transaction\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"use\"",
+        "sql": "ALTER TABLE \"public\".\"Transaction\" DROP COLUMN \"use\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"use\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Transaction",
+          "use"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"use\" on \"Transaction\""
+        }
+      }
+    ]
+  }
+]
